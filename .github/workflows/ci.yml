@@ -25,6 +25,19 @@ jobs:
         pip install poetry
         poetry install
     
+
+    - name: Run ruff
+      run: |
+        poetry run ruff check .
+
+    - name: Run ruff format
+      run: |
+        poetry run ruff format --check .
+
+    - name: Run mypy
+      run: |
+        poetry run mypy --show-error-codes .
+    
     - name: Run tests
       env:
         UPSTASH_VECTOR_REST_URL: ${{ secrets.UPSTASH_VECTOR_REST_URL }}
