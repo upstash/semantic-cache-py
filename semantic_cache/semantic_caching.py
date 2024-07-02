@@ -1,45 +1,87 @@
 import hashlib
 import json
-from typing import List, Optional
+from typing import List, Optional, Union
 from upstash_vector import Index
 from langchain_core.outputs.generation import Generation
 
 
 class SemanticCache:
-    def __init__(self, url, token, min_proximity: float = 0.9) -> None:
+    """
+    A class to represent a semantic cache using Upstash Vector Database.
+
+    Attributes:
+        min_proximity (float): The minimum proximity score to consider a cache hit.
+        index (Index): The Upstash Vector index object.
+    """
+
+    def __init__(self, url: str, token: str, min_proximity: float = 0.9) -> None:
+        """
+        Initializes the SemanticCache with the given URL and token.
+
+        Args:
+            url (str): The URL of the Upstash Vector database.
+            token (str): The token for accessing the Upstash Vector database.
+            min_proximity (float): The minimum proximity score to consider a cache hit.
+        """
         self.min_proximity = min_proximity
         self.index = Index(url=url, token=token)
 
-    # searches the cache for the key and returns the value if it exists
     def get(self, key: str) -> Optional[str]:
+        """
+        Searches the cache for the key and returns the value if it exists.
+
+        Args:
+            key (str): The key to search in the cache.
+
+        Returns:
+            Optional[str]: The value associated with the key if it exists and meets the proximity score; otherwise, None.
+        """
         response = self.query_key(key)
         if response is None or response.score <= self.min_proximity:
             return None
         return response.metadata["data"]
 
-    # langchain specific function
-    # converts the json string to generations and returns
     def lookup(
         self, prompt: str, llm_string: Optional[str] = None
     ) -> Optional[List[Generation]]:
+        """
+        Converts the JSON string to generations and returns them.
+
+        Args:
+            prompt (str): The prompt to lookup in the cache.
+            llm_string (Optional[str]): Optional string for LLM context.
+
+        Returns:
+            Optional[List[Generation]]: The generations if found in the cache; otherwise, None.
+        """
         result = self.get(prompt)
         return self._loads_generations(result) if result else None
 
-    # another langchain specific function
-    # converts the generations to a json string and stores it in the cache
     def update(
         self,
         prompt: str,
         llm_string: Optional[str] = None,
         result: Optional[str] = None,
     ) -> None:
+        """
+        Converts the generations to a JSON string and stores it in the cache.
+
+        Args:
+            prompt (str): The prompt to update in the cache.
+            llm_string (Optional[str]): Optional string for LLM context.
+            result (Optional[str]): The result to store in the cache.
+        """
         self.set(prompt, self._dumps_generations(result))
 
-    # sets the key and value in the cache
-    def set(
-        self, key: Optional[str | List[str]], data: Optional[str | List[str]]
-    ) -> None:
-        if (type(key) is list) and (type(data) is list):
+    def set(self, key: Union[str, List[str]], data: Union[str, List[str]]) -> None:
+        """
+        Sets the key and value in the cache.
+
+        Args:
+            key (Union[str, List[str]]): The key(s) to set in the cache.
+            data (Union[str, List[str]]): The value(s) to associate with the key(s).
+        """
+        if isinstance(key, list) and isinstance(data, list):
             for i in range(len(key)):
                 currrent_key = key[i]
                 self.index.upsert(
@@ -49,30 +91,69 @@ class SemanticCache:
             self.index.upsert([(self._hash_key(key), key, {"data": data})])
 
     def delete(self, key: str) -> None:
+        """
+        Deletes the key from the cache.
+
+        Args:
+            key (str): The key to delete from the cache.
+        """
         self.index.delete([self._hash_key(key)])
 
     def bulk_delete(self, keys: List[str]) -> None:
+        """
+        Deletes multiple keys from the cache.
+
+        Args:
+            keys (List[str]): The keys to delete from the cache.
+        """
         for key in keys:
             self.delete(key)
 
     def flush(self) -> None:
+        """
+        Resets the cache, removing all keys and values.
+        """
         self.index.reset()
 
-    # helper functions
+    def _query_key(self, key: str):
+        """
+        Queries the cache for the key.
 
-    # queries the cache for the key
-    def query_key(self, key):
+        Args:
+            key (str): The key to query in the cache.
+
+        Returns:
+            The response from the cache query.
+        """
         response = self.index.query(data=key, top_k=1, include_metadata=True)
         return response[0] if response else None
 
-    def _is_2d_list(self, lst):
+    def _is_2d_list(self, lst) -> bool:
+        """
+        Checks if the given list is a 2D list.
+
+        Args:
+            lst: The list to check.
+
+        Returns:
+            bool: True if the list is a 2D list; otherwise, False.
+        """
         return isinstance(lst, list) and all(
             isinstance(sublist, list) for sublist in lst
         )
 
-    # converts the generations to a json string
-    def _dumps_generations(self, generations):
-        def generation_to_dict(generation):
+    def _dumps_generations(self, generations: List[Generation]) -> str:
+        """
+        Converts the generations to a JSON string.
+
+        Args:
+            generations (List[Generation]): The generations to convert.
+
+        Returns:
+            str: The JSON string representation of the generations.
+        """
+
+        def generation_to_dict(generation: Generation) -> dict:
             if isinstance(generation, Generation):
                 return {
                     "text": generation.text,
@@ -85,9 +166,18 @@ class SemanticCache:
 
         return json.dumps([generation_to_dict(g) for g in generations])
 
-    # converts the json string to generations
-    def _loads_generations(self, json_str):
-        def dict_to_generation(d):
+    def _loads_generations(self, json_str: str) -> List[Generation]:
+        """
+        Converts the JSON string to generations.
+
+        Args:
+            json_str (str): The JSON string to convert.
+
+        Returns:
+            List[Generation]: The list of generations.
+        """
+
+        def dict_to_generation(d: dict) -> Generation:
             if isinstance(d, dict):
                 return Generation(text=d["text"], generation_info=d["generation_info"])
             else:
@@ -97,6 +187,14 @@ class SemanticCache:
 
         return [dict_to_generation(d) for d in json.loads(json_str)]
 
-    # hashes the key to generate id
-    def _hash_key(self, key):
+    def _hash_key(self, key: str) -> str:
+        """
+        Hashes the key to generate an ID.
+
+        Args:
+            key (str): The key to hash.
+
+        Returns:
+            str: The hashed key.
+        """
         return hashlib.sha256(key.encode("utf-8")).hexdigest()
