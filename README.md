@@ -44,7 +44,7 @@ First, create an Upstash Vector database [here](https://console.upstash.com/vect
 > [!NOTE]  
 > Different embedding models are great for different use cases. For example, if low latency is a priority, choose a model with a smaller dimension size like `bge-small-en-v1.5`. If accuracy is important, choose a model with more dimensions.
 
-Create a `.env` file in the src directory of your project and add your Upstash Vector URL and token:
+Create a `.env` file in the root directory of your project and add your Upstash Vector URL and token:
 
 ```plaintext
 UPSTASH_VECTOR_REST_URL=https://example.upstash.io
@@ -74,6 +74,20 @@ def main():
 if __name__ == '__main__':
     main() # outputs Istanbul
 ```
+
+### Using Tests and Examples
+
+In the root folder of the project, you will find tests and examples folders. If you have made changes to the project and want to examine the outputs, you can run the tests and examples using the following commands from the root of the project:
+
+```bash
+python3 -m unittest discover tests
+```
+
+```bash
+python3 -m examples.llm
+```
+
+If you added new example files, replace llm with the filename.
 
 ### The `minProximity` Parameter
 
