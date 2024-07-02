@@ -6,12 +6,12 @@ from langchain_core.outputs.generation import Generation
 
 
 class SemanticCache:
-    def __init__(self, url, token, min_proximity: float = 0.9):
+    def __init__(self, url, token, min_proximity: float = 0.9) -> None:
         self.min_proximity = min_proximity
         self.index = Index(url=url, token=token)
 
     # searches the cache for the key and returns the value if it exists
-    def get(self, key: str):
+    def get(self, key: str) -> Optional[str]:
         response = self.query_key(key)
         if response is None or response.score <= self.min_proximity:
             return None
@@ -19,7 +19,9 @@ class SemanticCache:
 
     # langchain specific function
     # converts the json string to generations and returns
-    def lookup(self, prompt: str, llm_string: Optional[str] = None):
+    def lookup(
+        self, prompt: str, llm_string: Optional[str] = None
+    ) -> Optional[List[Generation]]:
         result = self.get(prompt)
         return self._loads_generations(result) if result else None
 
@@ -30,16 +32,13 @@ class SemanticCache:
         prompt: str,
         llm_string: Optional[str] = None,
         result: Optional[str] = None,
-    ):
+    ) -> None:
         self.set(prompt, self._dumps_generations(result))
 
-    # queries the cache for the key
-    def query_key(self, key: str):
-        response = self.index.query(data=key, top_k=1, include_metadata=True)
-        return response[0] if response else None
-
     # sets the key and value in the cache
-    def set(self, key: Optional[str | List[str]], data: Optional[str | List[str]]):
+    def set(
+        self, key: Optional[str | List[str]], data: Optional[str | List[str]]
+    ) -> None:
         if (type(key) is list) and (type(data) is list):
             for i in range(len(key)):
                 currrent_key = key[i]
@@ -49,17 +48,23 @@ class SemanticCache:
         else:
             self.index.upsert([(self._hash_key(key), key, {"data": data})])
 
-    def delete(self, key: str):
+    def delete(self, key: str) -> None:
         self.index.delete([self._hash_key(key)])
 
-    def bulk_delete(self, keys: List[str]):
+    def bulk_delete(self, keys: List[str]) -> None:
         for key in keys:
             self.delete(key)
 
-    def flush(self):
+    def flush(self) -> None:
         self.index.reset()
 
     # helper functions
+
+    # queries the cache for the key
+    def query_key(self, key):
+        response = self.index.query(data=key, top_k=1, include_metadata=True)
+        return response[0] if response else None
+
     def _is_2d_list(self, lst):
         return isinstance(lst, list) and all(
             isinstance(sublist, list) for sublist in lst
