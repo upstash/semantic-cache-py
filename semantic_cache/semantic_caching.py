@@ -46,7 +46,8 @@ class SemanticCache:
     ) -> Optional[List[Generation]]:
         """
         Converts the JSON string to generations and returns them.
-
+        It is called by Langchain to check if the generations are in the cache.
+        
         Args:
             prompt (str): The prompt to lookup in the cache.
             llm_string (Optional[str]): Optional string for LLM context.
@@ -65,7 +66,8 @@ class SemanticCache:
     ) -> None:
         """
         Converts the generations to a JSON string and stores it in the cache.
-
+        It is called by Langchain to upload the generations to the cache.
+        
         Args:
             prompt (str): The prompt to update in the cache.
             llm_string (Optional[str]): Optional string for LLM context.
