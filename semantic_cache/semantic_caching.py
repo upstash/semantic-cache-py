@@ -34,7 +34,8 @@ class SemanticCache:
             key (str): The key to search in the cache.
 
         Returns:
-            Optional[str]: The value associated with the key if it exists and meets the proximity score; otherwise, None.
+            Optional[str]: The value associated with the key 
+            if it exists and meets the proximity score; otherwise, None.
         """
         response = self._query_key(key)
         if response is None or response.score <= self.min_proximity:
@@ -53,7 +54,8 @@ class SemanticCache:
             llm_string (Optional[str]): Optional string for LLM context.
 
         Returns:
-            Optional[List[Generation]]: The generations if found in the cache; otherwise, None.
+            Optional[List[Generation]]: 
+            If response is found in the cache; otherwise, None.
         """
         result = self.get(prompt)
         return self._loads_generations(result) if result else None
@@ -157,7 +159,8 @@ class SemanticCache:
                 }
             else:
                 raise TypeError(
-                    f"Object of type {generation.__class__.__name__} is not JSON serializable"
+                    f"Object of type {generation.__class__.__name__} 
+                    is not JSON serializable"
                 )
 
         return json.dumps([generation_to_dict(g) for g in generations])
@@ -172,7 +175,8 @@ class SemanticCache:
                 return Generation(text=d["text"], generation_info=d["generation_info"])
             else:
                 raise TypeError(
-                    f"Object of type {d.__class__.__name__} is not a valid Generation dict"
+                    f"Object of type {d.__class__.__name__} 
+                    is not a valid Generation dict"
                 )
 
         return [dict_to_generation(d) for d in json.loads(json_str)]
