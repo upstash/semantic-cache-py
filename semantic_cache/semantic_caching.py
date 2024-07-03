@@ -36,7 +36,7 @@ class SemanticCache:
         Returns:
             Optional[str]: The value associated with the key if it exists and meets the proximity score; otherwise, None.
         """
-        response = self.query_key(key)
+        response = self._query_key(key)
         if response is None or response.score <= self.min_proximity:
             return None
         return response.metadata["data"]
@@ -144,18 +144,12 @@ class SemanticCache:
             isinstance(sublist, list) for sublist in lst
         )
 
-    def _dumps_generations(self, generations: List[Generation]) -> str:
+    def _dumps_generations(self, generations):
         """
         Converts the generations to a JSON string.
-
-        Args:
-            generations (List[Generation]): The generations to convert.
-
-        Returns:
-            str: The JSON string representation of the generations.
         """
 
-        def generation_to_dict(generation: Generation) -> dict:
+        def generation_to_dict(generation):
             if isinstance(generation, Generation):
                 return {
                     "text": generation.text,
@@ -168,15 +162,9 @@ class SemanticCache:
 
         return json.dumps([generation_to_dict(g) for g in generations])
 
-    def _loads_generations(self, json_str: str) -> List[Generation]:
+    def _loads_generations(self, json_str):
         """
         Converts the JSON string to generations.
-
-        Args:
-            json_str (str): The JSON string to convert.
-
-        Returns:
-            List[Generation]: The list of generations.
         """
 
         def dict_to_generation(d: dict) -> Generation:
@@ -189,14 +177,8 @@ class SemanticCache:
 
         return [dict_to_generation(d) for d in json.loads(json_str)]
 
-    def _hash_key(self, key: str) -> str:
+    def _hash_key(self, key):
         """
         Hashes the key to generate an ID.
-
-        Args:
-            key (str): The key to hash.
-
-        Returns:
-            str: The hashed key.
         """
         return hashlib.sha256(key.encode("utf-8")).hexdigest()

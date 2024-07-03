@@ -1,1 +1,1 @@
-from .semantic_caching import SemanticCache
+from .semantic_caching import SemanticCache as SemanticCache
