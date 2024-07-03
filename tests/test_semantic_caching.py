@@ -6,22 +6,25 @@ import os
 
 load_dotenv()
 
-UPSTASH_VECTOR_REST_URL = os.getenv('UPSTASH_VECTOR_REST_URL')
-UPSTASH_VECTOR_REST_TOKEN = os.getenv('UPSTASH_VECTOR_REST_TOKEN')
+UPSTASH_VECTOR_REST_URL = os.getenv("UPSTASH_VECTOR_REST_URL")
+UPSTASH_VECTOR_REST_TOKEN = os.getenv("UPSTASH_VECTOR_REST_TOKEN")
 
 # Initialize Upstash Vector Index
+
 
 class TestSemanticCache(unittest.TestCase):
     key1 = "key1"
     key2 = "key2"
     data1 = "value1"
     data2 = "value2"
-    
+
     def setUp(self):
         # Initialize the SemanticCache instance
-        self.cache = SemanticCache(UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_TOKEN, min_proximity=0.7)
+        self.cache = SemanticCache(
+            UPSTASH_VECTOR_REST_URL, UPSTASH_VECTOR_REST_TOKEN, min_proximity=0.7
+        )
         self.refresh()
-        
+
     def test_get_existing_key(self):
         # Set up a key-value pair in the cache
 
@@ -35,14 +38,13 @@ class TestSemanticCache(unittest.TestCase):
         self.refresh()
 
     def test_get_nonexistent_key(self):
-        
         # Retrieve a non-existent key
         result = self.cache.get("nonexistent_key")
 
         # Assert that the result is None
         self.assertIsNone(result)
         self.refresh()
-        
+
     def test_set_multiple_key_values(self):
         # Set up multiple key-value pairs in the cache
         keys = [self.key1, self.key2]
@@ -58,7 +60,7 @@ class TestSemanticCache(unittest.TestCase):
         self.assertEqual(result1, data[0])
         self.assertEqual(result2, data[1])
         self.refresh()
-        
+
     def test_delete_existing_key(self):
         self.cache.set(self.key1, self.data1)
         sleep(1)
@@ -71,20 +73,20 @@ class TestSemanticCache(unittest.TestCase):
         # Assert that the result is None
         self.assertIsNone(result)
         self.refresh()
-        
+
     def test_delete_nonexistent_key(self):
         # Set up a key-value pair in the cache
         key = self.key1
         data = self.data1
-        self.cache.set(key,data)
+        self.cache.set(key, data)
         sleep(1)
         # Delete a non-existent key
-        result = self.cache.delete('nonexistent_key')
+        result = self.cache.delete("nonexistent_key")
         sleep(1)
         # Assert that the result is False
         self.assertFalse(result)
         self.refresh()
-        
+
     def test_bulk_delete(self):
         # Set up multiple key-value pairs in the cache
         keys = [self.key1, self.key2, "key3"]
@@ -101,7 +103,7 @@ class TestSemanticCache(unittest.TestCase):
         sleep(1)
         result3 = self.cache.get(keys[2])
         sleep(1)
-        
+
         # Assert that the results are None
         self.assertIsNone(result1)
         self.assertIsNone(result2)
@@ -112,7 +114,7 @@ class TestSemanticCache(unittest.TestCase):
         # Set up a key-value pair in the cache
         key = self.key1
         data = self.data1
-        self.cache.set(key,data)
+        self.cache.set(key, data)
         # Flush the cache
         self.cache.flush()
         # Retrieve the value using the key
@@ -120,10 +122,11 @@ class TestSemanticCache(unittest.TestCase):
         # Assert that the result is None
         self.assertIsNone(result)
         self.refresh()
-        
+
     def refresh(self):
         self.cache.flush()
         sleep(1)
+
 
 if __name__ == "__main__":
     unittest.main()
