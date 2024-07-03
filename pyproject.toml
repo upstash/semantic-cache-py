@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "semantic-cache-py"
+name = "upstash-semantic-cache"
 version = "1.0.0"
 description = "Semantic Caching Algorithm for Upstash Vector"
 license = "MIT"
