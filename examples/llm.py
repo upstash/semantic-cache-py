@@ -2,7 +2,7 @@ import os
 from time import sleep
 import time
 from dotenv import load_dotenv
-from semantic_cache.semantic_caching import SemanticCache
+from upstash_semantic_cache.semantic_caching import SemanticCache
 from langchain.globals import set_llm_cache
 from langchain_openai import OpenAI
 

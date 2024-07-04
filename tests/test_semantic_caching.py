@@ -1,6 +1,6 @@
 from time import sleep
 import unittest
-from semantic_cache.semantic_caching import SemanticCache
+from upstash_semantic_cache.semantic_caching import SemanticCache
 from dotenv import load_dotenv
 import os
 

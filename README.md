@@ -34,7 +34,7 @@ pip install scaching
 To use it in your project, you must import it at the beginning of your file:
 
 ```python
-from upstash-semantic-cache import SemanticCache
+from upstash_semantic_cache import SemanticCache
  ```
 
 ### Setup
