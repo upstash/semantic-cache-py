@@ -96,7 +96,7 @@ class SemanticCache:
         else:
             self.index.upsert([(self._hash_key(key), key, {"data": value})])
 
-    def delete(self, key: Union[str | List[str]]) -> None:
+    def delete(self, key: Union[str, List[str]]) -> None:
         """
         Deletes the key from the cache.
 
