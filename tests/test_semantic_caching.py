@@ -94,7 +94,7 @@ class TestSemanticCache(unittest.TestCase):
         self.cache.set(keys, data)
         sleep(1)
         # Delete multiple keys
-        self.cache.bulk_delete(keys)
+        self.cache.delete(keys)
         sleep(1)
         # Retrieve the values using the keys
         result1 = self.cache.get(keys[0])

@@ -77,41 +77,39 @@ class SemanticCache:
         """
         self.set(prompt, self._dumps_generations(result))
 
-    def set(self, key: Union[str, List[str]], data: Union[str, List[str]]) -> None:
+    def set(self, key: Union[str, List[str]], value: Union[str, List[str]]) -> None:
         """
         Sets the key and value in the cache.
 
         Args:
             key (Union[str, List[str]]): The key(s) to set in the cache.
-            data (Union[str, List[str]]): The value(s) to associate with the key(s).
+            value (Union[str, List[str]]): The value(s) to associate with the key(s).
         """
-        if isinstance(key, list) and isinstance(data, list):
+        if isinstance(key, list) and isinstance(value, list):
+            batch = []
             for i in range(len(key)):
-                currrent_key = key[i]
-                self.index.upsert(
-                    [(self._hash_key(currrent_key), currrent_key, {"data": data[i]})]
+                current_key = key[i]
+                batch.append(
+                    (self._hash_key(current_key), current_key, {"data": value[i]})
                 )
+            self.index.upsert(batch)
         else:
-            self.index.upsert([(self._hash_key(key), key, {"data": data})])
+            self.index.upsert([(self._hash_key(key), key, {"data": value})])
 
-    def delete(self, key: str) -> None:
+    def delete(self, key: Union[str | List[str]]) -> None:
         """
         Deletes the key from the cache.
 
         Args:
-            key (str): The key to delete from the cache.
+            key (str): The key (or keys) to delete from the cache.
         """
-        self.index.delete([self._hash_key(key)])
-
-    def bulk_delete(self, keys: List[str]) -> None:
-        """
-        Deletes multiple keys from the cache.
-
-        Args:
-            keys (List[str]): The keys to delete from the cache.
-        """
-        for key in keys:
-            self.delete(key)
+        if isinstance(key, list):
+            batch = []
+            for current_key in key:
+                batch.append(self._hash_key(current_key))
+            self.index.delete(batch)
+        else:
+            self.index.delete([self._hash_key(key)])
 
     def flush(self) -> None:
         """
@@ -131,20 +129,6 @@ class SemanticCache:
         """
         response = self.index.query(data=key, top_k=1, include_metadata=True)
         return response[0] if response else None
-
-    def _is_2d_list(self, lst) -> bool:
-        """
-        Checks if the given list is a 2D list.
-
-        Args:
-            lst: The list to check.
-
-        Returns:
-            bool: True if the list is a 2D list; otherwise, False.
-        """
-        return isinstance(lst, list) and all(
-            isinstance(sublist, list) for sublist in lst
-        )
 
     def _dumps_generations(self, generations):
         """
