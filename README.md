@@ -28,7 +28,7 @@ Semantic Cache allows you to:
 After creating a vector database, you should install the repository using the following command.
 
 ```bash
-pip install scaching
+pip install upstash-semantic-cache
 ```
 
 To use it in your project, you must import it at the beginning of your file:
