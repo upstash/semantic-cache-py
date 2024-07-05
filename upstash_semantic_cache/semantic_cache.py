@@ -37,7 +37,7 @@ class SemanticCache:
         response = self._query_key(key)
         if response is None or response.score <= self.min_proximity:
             return None
-        return response.metadata["data"]
+        return response.metadata["value"]
 
     def lookup(
         self, prompt: str, llm_string: Optional[str] = None
@@ -88,7 +88,7 @@ class SemanticCache:
                 batch.append((self._hash_key(k), k, {"value": v}))
             self.index.upsert(batch)
         else:
-            self.index.upsert([(self._hash_key(key), key, {"data": value})])
+            self.index.upsert([(self._hash_key(key), key, {"value": value})])
 
     def delete(self, key: Union[str, List[str]]) -> None:
         """
