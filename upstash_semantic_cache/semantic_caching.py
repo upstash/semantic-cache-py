@@ -9,9 +9,6 @@ class SemanticCache:
     """
     A class to represent a semantic cache using Upstash Vector Database.
 
-    Attributes:
-        min_proximity (float): The minimum proximity score to consider a cache hit.
-        index (Index): The Upstash Vector index object.
     """
 
     def __init__(self, url: str, token: str, min_proximity: float = 0.9) -> None:
