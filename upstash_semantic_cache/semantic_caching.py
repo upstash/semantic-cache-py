@@ -84,11 +84,8 @@ class SemanticCache:
         """
         if isinstance(key, list) and isinstance(value, list):
             batch = []
-            for i in range(len(key)):
-                current_key = key[i]
-                batch.append(
-                    (self._hash_key(current_key), current_key, {"data": value[i]})
-                )
+            for k, v in zip(key, value):
+                batch.append((self._hash_key(k), k, {"value": v}))
             self.index.upsert(batch)
         else:
             self.index.upsert([(self._hash_key(key), key, {"data": value})])
