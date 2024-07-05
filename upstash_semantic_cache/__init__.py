@@ -1,1 +1,1 @@
-from .semantic_caching import SemanticCache as SemanticCache
+from upstash_semantic_cache.semantic_caching import SemanticCache
