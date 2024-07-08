@@ -15,7 +15,7 @@ class SemanticCache:
         url: str,
         token: str,
         min_proximity: float = 0.9,
-        namespace: Optional[str] = None,
+        namespace: str = "",
     ) -> None:
         """
         Initializes the SemanticCache with the given URL, token, and optional namespace.
@@ -24,7 +24,7 @@ class SemanticCache:
             url (str): The URL of the Upstash Vector database.
             token (str): The token for accessing the Upstash Vector database.
             min_proximity (float): The minimum proximity score to consider a cache hit.
-            namespace (Optional[str]): The namespace to logically separate data sets 
+            namespace (Optional[str]): The namespace to logically separate data sets
             within the same index.
         """
         self.min_proximity = min_proximity
@@ -83,25 +83,33 @@ class SemanticCache:
         self.set(prompt, self._dumps_generations(result))
 
     def set(self, key: Union[str, List[str]], value: Union[str, List[str]]) -> None:
+        """
+        Sets the key and value in the cache.
+
+        Args:
+            key (Union[str, List[str]]): The key or list of keys to set in the cache.
+            value (Union[str, List[str]]): The value or list of values.
+        """
         if isinstance(key, list) and isinstance(value, list):
             batch = [
                 (
-                    self._hash_key(self._namespaced_key(k)),
-                    self._namespaced_key(k),
+                    self._hash_key(k),
+                    k,
                     {"value": v},
                 )
                 for k, v in zip(key, value)
             ]
-            self.index.upsert(batch)
+            self.index.upsert(batch, self.namespace)
         else:
             self.index.upsert(
                 [
                     (
-                        self._hash_key(self._namespaced_key(key)),
-                        self._namespaced_key(key),
+                        self._hash_key(key),
+                        key,
                         {"value": value},
                     )
-                ]
+                ],
+                self.namespace,
             )
 
     def delete(self, key: Union[str, List[str]]) -> None:
@@ -115,18 +123,15 @@ class SemanticCache:
             batch = []
             for current_key in key:
                 batch.append(self._hash_key(current_key))
-            self.index.delete(batch)
+            self.index.delete(batch, namespace=self.namespace)
         else:
-            self.index.delete([self._hash_key(key)])
+            self.index.delete([self._hash_key(key)], namespace=self.namespace)
 
     def flush(self) -> None:
         """
         Resets the cache, removing all keys and values.
         """
         self.index.reset()
-
-    def _namespaced_key(self, key: Union[str, List[str]]) -> str:
-        return f"{self.namespace}:{key}" if self.namespace else key
 
     def _query_key(self, key: str):
         """
