@@ -24,7 +24,7 @@ class SemanticCache:
             url (str): The URL of the Upstash Vector database.
             token (str): The token for accessing the Upstash Vector database.
             min_proximity (float): The minimum proximity score to consider a cache hit.
-            namespace (Optional[str]): The namespace to logically separate data sets
+            namespace (str): The namespace to logically separate data sets
             within the same index.
         """
         self.min_proximity = min_proximity
