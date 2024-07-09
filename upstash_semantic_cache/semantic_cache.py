@@ -131,7 +131,7 @@ class SemanticCache:
         """
         Resets the cache, removing all keys and values.
         """
-        self.index.reset()
+        self.index.reset(namespace=self.namespace)
 
     def _query_key(self, key: str):
         """
@@ -143,7 +143,9 @@ class SemanticCache:
         Returns:
             The response from the cache query.
         """
-        response = self.index.query(data=key, top_k=1, include_metadata=True)
+        response = self.index.query(
+            data=key, top_k=1, include_metadata=True, namespace=self.namespace
+        )
         return response[0] if response else None
 
     def _dumps_generations(self, generations):
