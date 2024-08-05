@@ -1,0 +1,47 @@
+[tool.poetry]
+name = "upstash-semantic-cache"
+version = "1.0.0"
+description = "Semantic Caching Algorithm for Upstash Vector"
+license = "MIT"
+authors = ["Upstash <support@upstash.com>"]
+maintainers = ["Upstash <support@upstash.com>"]
+readme = "README.md"
+repository = "https://github.com/upstash/semantic-cache-py"
+keywords = ["Upstash", "Upstash Vector", "Semantic Cache"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries",
+]
+
+packages = [{ include = "upstash_semantic_cache" }]
+
+[tool.poetry.dependencies]
+python = ">=3.8.1,<4.0"
+langchain_core = "^0.2.0"
+upstash_vector = ">=0.5.0, <1"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.2.2"
+python-dotenv = "^1.0.1"
+ruff = "^0.0.267"
+mypy = "^1.1.1"
+langchain_openai = "0.1.7"
+langchain = "0.2.0" 
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
